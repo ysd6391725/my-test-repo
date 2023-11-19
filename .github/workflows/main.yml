@@ -13,17 +13,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  resources:
-    name: Update resources
+  run:
     runs-on: ubuntu-latest
     steps:
-      - name: Add text to file
-        run: echo "Your text here" >> 1.txt
-        
       - uses: wow-actions/update-file@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          path: 1.txt
+          path: README.md
           content: 'Updated by update-file action'
 
 

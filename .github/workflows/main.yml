@@ -41,7 +41,6 @@ jobs:
           fetch-depth: 2
 
       - name: Get Changed Files
-        id: changed_files
         run: |
           echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs)"
           echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
@@ -58,10 +57,10 @@ jobs:
   
       - name: Check CODEOWNERS file
         run: |
-          echo ${{ steps.changed_files.outputs.files }}
-          echo ${{ steps.changed_files.outputs.username }}
+          echo ${{ needs.changed_files.outputs.files }}
+          echo ${{ needs.changed_files.outputs.username }}
           while IFS= read -r line; do
-            if [[ $line == *"${{ steps.changed_files.outputs.files }}"* && $line == *"@${{ steps.changed_files.outputs.username }}"* ]]; then
+            if [[ $line == *"${{ needs.changed_files.outputs.files }}"* && $line == *"@${{ needs.changed_files.outputs.username }}"* ]]; then
               echo "Exist"
               echo "::set-output name=mode::no"
               exit 0

@@ -1,8 +1,9 @@
 name: Check CODEOWNERS for Committer
 
 on:
-  pull_request:
-    types: [closed]
+  push:
+  # pull_request:
+  #   types: [closed]
     paths:
       - 'templates/ADO/**'
       - 'templates/ServiceNow/**'
@@ -14,16 +15,17 @@ permissions:
 
 jobs:
   run:
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/checkout@v1
-       - uses: actions/setup-node@v1
-       - name: Update resources
-         uses: test-room-7/action-update-file@v1
-         with:
-           file-path: 'README.md'
-           commit-msg: Update file
-           github-token: ${{ secrets.GH_PAT }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+      - name: Update resources
+        uses: test-room-7/action-update-file@v1
+        with:
+          file-path: 'README.md'
+          commit-msg: Update file
+          github-token: ${{ secrets.GH_PAT }}
+
      
   
   # file_changes:

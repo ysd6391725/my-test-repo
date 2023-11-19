@@ -14,23 +14,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  # add_text:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - uses: actions/setup-node@v1
-      
-  #     - name: Add text to file
-  #       run: |
-  #         echo "@user1" >> 1.txt
-  #     - name: Update resources
-  #       uses: test-room-7/action-update-file@v1
-  #       with:
-  #         file-path: 1.txt
-  #         commit-msg: Update resources
-  #         github-token: ${{ secrets.GH_PAT }}
-
   file_changes:
     name: File changes
     runs-on: ubuntu-latest
@@ -40,9 +23,16 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Get pull request details
+        run: |
+          echo "Pull Request created by: ${{ github.event.pull_request.user.login }}"
+          echo "Files changed in this pull request:"
+          git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
+
       - name: Get Changed Files
         id: changed_files
         run: |
+        
           changed_files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs)
           username=$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')
           echo "::set-output name=files::$changed_files"
@@ -53,55 +43,55 @@ jobs:
         files: ${{ steps.changed_files.outputs.files }}
         username: ${{ steps.changed_files.outputs.committer }}
         
-  sync_to_s3:
-    runs-on: ubuntu-latest
-    needs: file_changes
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # sync_to_s3:
+  #   runs-on: ubuntu-latest
+  #   needs: file_changes
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
   
-      - name: Check CODEOWNERS file
-        id: codeowners_file
-        run: |
-          echo ${{ needs.file_changes.outputs.files }}
-          echo ${{ needs.file_changes.outputs.username }}
-          while IFS= read -r line; do
-            if [[ $line == *"${{ needs.file_changes.outputs.files }}"* && $line == *"@${{ needs.file_changes.outputs.username }}"* ]]; then
-              echo "Exist"
-              echo "::set-output name=mode::no"
-              exit 0
-            fi
-          done < CODEOWNERS
-          echo "Not exists"
-          echo "::set-output name=mode::add"
+  #     - name: Check CODEOWNERS file
+  #       id: codeowners_file
+  #       run: |
+  #         echo ${{ needs.file_changes.outputs.files }}
+  #         echo ${{ needs.file_changes.outputs.username }}
+  #         while IFS= read -r line; do
+  #           if [[ $line == *"${{ needs.file_changes.outputs.files }}"* && $line == *"@${{ needs.file_changes.outputs.username }}"* ]]; then
+  #             echo "Exist"
+  #             echo "::set-output name=mode::no"
+  #             exit 0
+  #           fi
+  #         done < CODEOWNERS
+  #         echo "Not exists"
+  #         echo "::set-output name=mode::add"
 
-      - name: Sync ADO templates to S3
-        run: echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+  #     - name: Sync ADO templates to S3
+  #       run: echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
         
-      - name: Sync ServiceNow templates to S3
-        run: echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+  #     - name: Sync ServiceNow templates to S3
+  #       run: echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
         
-    outputs:
-      committer: ${{ steps.codeowners_file.outputs.mode }}
+  #   outputs:
+  #     committer: ${{ steps.codeowners_file.outputs.mode }}
 
-  add_to_codeowners:
-    if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}
-    runs-on: ubuntu-latest
-    needs: sync_to_s3
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+  # add_to_codeowners:
+  #   if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}
+  #   runs-on: ubuntu-latest
+  #   needs: sync_to_s3
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - uses: actions/setup-node@v1
       
-      - name: Add committer to the CODEOWNER file
-        run: |
-          echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
+  #     - name: Add committer to the CODEOWNER file
+  #       run: |
+  #         echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
           
-      - name: Update CODEOWNERS
-        uses: test-room-7/action-update-file@v1
-        with:
-          file-path: CODEOWNERS
-          commit-msg: Update CODEOWNERS
-          github-token: ${{ secrets.GH_PAT }}
+  #     - name: Update CODEOWNERS
+  #       uses: test-room-7/action-update-file@v1
+  #       with:
+  #         file-path: CODEOWNERS
+  #         commit-msg: Update CODEOWNERS
+  #         github-token: ${{ secrets.GH_PAT }}
 
 
 

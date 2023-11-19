@@ -85,11 +85,11 @@ jobs:
           username="${{ needs.file_changes.outputs.username }}"
           files="${{ needs.file_changes.outputs.files }}"
           echo "*.$files    @$username" >> CODEOWNERS
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add CODEOWNERS
-          git commit -m "Grant permissions for new file to $username"
-          git push origin main
+          # git config --global user.email "actions@github.com"
+          # git config --global user.name "GitHub Actions"
+          # git add CODEOWNERS
+          # git commit -m "Grant permissions for new file to $username"
+          # git push origin main
           
       - name: Sync ADO templates to S3
         run: |

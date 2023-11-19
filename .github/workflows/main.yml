@@ -26,7 +26,7 @@ jobs:
         run: |
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
-          git log
+          git log -1
 
 
 

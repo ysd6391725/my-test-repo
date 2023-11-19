@@ -27,6 +27,9 @@ jobs:
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
           git log --oneline --name-status -m -- templates/
+          echo "3333333333333333"
+          git log --oneline --name-status -m -- templates/ | awk '/^A/ {print $2}'
+
 
 
 

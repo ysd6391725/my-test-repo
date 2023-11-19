@@ -18,25 +18,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+      
       - name: Add text to file
         run: |
           echo "Your text to add" >> 1.txt
-
-      - name: Commit changes
-        run: |
-          git config --global user.email "syakovenko81@github.com"
-          git config --global user.name "GitHub Actions"
-          git add 1.txt
-          git commit -m "Add text to file via GitHub Actions"
-
-      - name: Push changes 
-        uses: ad-m/github-push-action@master
+      - name: Update resources
+        uses: test-room-7/action-update-file@v1
         with:
-         github_token: ${{ secrets.GH_PAT }}
-         force: true
+          file-path: 1.txt
+          commit-msg: Update resources
+          github-token: ${{ secrets.GH_PAT }}
 
 # jobs:
 #   file_changes:

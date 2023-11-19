@@ -31,22 +31,12 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add 1.txt
           git commit -m "Add text to file via GitHub Actions"
-          
-      - name: Debug Info
-        run: |
-          git remote -v
-          git config --get-regexp '^remote\..*\.url$'
-          git remote show origin
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
 
-
-      - name: Push changes using PAT
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          git remote add origin_with_token "https://github.com/${{ github.repository }}.git"
-          git push origin_with_token HEAD:main
+      - name: Push changes 
+        uses: ad-m/github-push-action@master
+        with:
+         github_token: ${{ secrets.GH_PAT }}
+         force: true
 
 # jobs:
 #   file_changes:

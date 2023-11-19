@@ -75,7 +75,7 @@ jobs:
       mode: ${{ steps.codeowners_file.outputs.mode }}
 
   add_to_codeowners:
-    #if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}
+    if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}
     runs-on: ubuntu-latest
     needs: sync_to_s3
     steps:
@@ -84,15 +84,14 @@ jobs:
       
       - name: Add committer to the CODEOWNER file
         run: |
-          echo  ${{ needs.sync_to_s3.outputs.mode }}
-      #     echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
+          echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
           
-      # - name: Update CODEOWNERS
-      #   uses: test-room-7/action-update-file@v1
-      #   with:
-      #     file-path: CODEOWNERS
-      #     commit-msg: Update CODEOWNERS
-      #     github-token: ${{ secrets.GH_PAT }}
+      - name: Update CODEOWNERS
+        uses: test-room-7/action-update-file@v1
+        with:
+          file-path: CODEOWNERS
+          commit-msg: Update CODEOWNERS
+          github-token: ${{ secrets.GH_PAT }}
 
 
 

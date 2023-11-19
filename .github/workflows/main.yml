@@ -26,8 +26,8 @@ jobs:
         run: |
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
-          changes=$(git diff-tree --diff-filter=ACMRT -r "${{ github.event.pull_request.merge_commit_sha }}" -- templates/ | xargs)
-          echo $changes
+          git log --oneline --name-status -m -- templates/
+
 
 
 

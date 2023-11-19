@@ -1,18 +1,12 @@
-name: Sync Templates to S3 - dev
+name: Check CODEOWNERS for Committer
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: write
-
 jobs:
-  code-review:
-    if: github.event.review.state == 'approved'
+  check-codeowners:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,30 +19,19 @@ jobs:
           git checkout origin/main -- CODEOWNERS
           # Adjust the path if your CODEOWNERS file is located in a different directory
 
-      - name: Check code ownership
-        id: codeowners
+      - name: Get Committer Username
+        id: committer_username
         run: |
-          changed_files=$(git diff --name-only origin/main...HEAD)
-          echo $changed_files
-          # while IFS= read -r file; do
-          #     if grep -q "^$file\s.*" CODEOWNERS; then
-          #         echo "false"
-          #         exit 0
-          #     fi
-          # done <<< "$changed_files"
-          # echo "true"
+          echo "::set-output name=username::$(git log -1 --pretty=format:'%an')"
+          # This command retrieves the committer's username of the latest commit
 
-
-      - name: Request review if necessary
-        if: steps.codeowners.outputs.needs_review == 'true'
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const response = await github.pulls.createReviewRequest({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              reviewers: ['reviewer1', 'reviewer2'] // Add your reviewers here
-            });
-            console.log(response);
+      - name: Check if Committer is in CODEOWNERS
+        id: check_codeowners
+        run: |
+          committer=$(cat $GITHUB_WORKSPACE/CODEOWNERS | grep -Eo '@\S+' | sed 's/@//')
+          committer_username="${{ steps.committer_username.outputs.username }}"
+          if [[ "$committer" == *"$committer_username"* ]]; then
+            echo "Committer is in CODEOWNERS"
+          else
+            echo "Committer is not in CODEOWNERS"
+          fi

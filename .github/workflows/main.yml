@@ -32,7 +32,8 @@ jobs:
 
       - name: Get files changed by the pull request author
         run: |
-          changed_files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r $merge_commit_sha)
+          merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}
+          changed_files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "$merge_commit_sha")
           #changed_files=$(git diff --name-only $(echo "$changed_commits" | head -n 1)^..$merge_commit_sha | sort -u)
           echo "Files changed by the pull request author:"
           echo "$changed_files"

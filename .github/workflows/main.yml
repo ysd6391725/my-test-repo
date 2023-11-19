@@ -17,12 +17,13 @@ jobs:
         id: committer_username
         run: |
           git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]'
+          echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
           # Extracts the GitHub username associated with the latest commit
 
       - name: Check if Committer is in CODEOWNERS
         id: check_codeowners
         run: |
-          committer_username="${{ steps.committer_username.outputs.stdout }}"
+          committer_username="${{ steps.committer_username.outputs.username }}"
           echo $committer_username
           owners=$(awk '/^\*.*@/ {print $2}' CODEOWNERS)
           if echo "$owners" | grep -qw "$committer_username"; then

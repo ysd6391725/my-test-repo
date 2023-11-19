@@ -58,6 +58,8 @@ jobs:
   
       - name: Check CODEOWNERS file
         run: |
+          echo ${{ steps.changed_files.outputs.files }}
+          echo ${{ steps.changed_files.outputs.username }}
           while IFS= read -r line; do
             if [[ $line == *"${{ steps.changed_files.outputs.files }}"* && $line == *"@${{ steps.changed_files.outputs.username }}"* ]]; then
               echo "Exist"

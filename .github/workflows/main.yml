@@ -2,8 +2,7 @@ name: Check CODEOWNERS for Committer
 
 on:
   pull_request:
-    branches:
-      - main
+    types: [closed]
     paths:
       - 'templates/ADO/**'
       - 'templates/ServiceNow/**'
@@ -15,6 +14,7 @@ permissions:
 
 jobs:
   file_changes:
+    if: github.event.pull_request.merged == true
     name: File changes
     runs-on: ubuntu-latest
 
@@ -22,6 +22,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
+
+      - name: Display Pull Request Author on Merge
+        run: |
+          author_username=${{ github.event.pull_request.user.login }}
+          echo "The author of the pull request at merge was: $author_username"
 
       - name: Get pull request details
         run: |    

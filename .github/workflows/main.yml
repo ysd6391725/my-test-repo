@@ -28,16 +28,11 @@ jobs:
           echo "The author of the pull request at merge was: $author_username"
           git log -1
 
-      - name: Find commit hash
-        id: find-commit
-        run: |
-          COMMIT_HASH=$(git log --grep='Merge pull request #55 from ysd6391725/patch-56' --format='%H' -n 1)
-          echo "::set-output name=commit_hash::$COMMIT_HASH"
+      - name: Fetch latest changes
+        run: git fetch --depth=1 origin main
 
-      - name: Display commit details
-        run: |
-          COMMIT_HASH=${{ steps.find-commit.outputs.commit_hash }}
-          git show $COMMIT_HASH
+      - name: Display last commit(s)
+        run: git log -n 5 --pretty=oneline
 
 
 

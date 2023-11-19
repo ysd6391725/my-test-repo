@@ -44,7 +44,7 @@ jobs:
         id: changed_files
         run: |
           git diff-tree --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs
-          COMMITTER_NAME=$(git log -1 --format='%ae' ${{ github.sha }})
+          COMMITTER_NAME=$(git log -1)
           echo "Committer Name: $COMMITTER_NAME"
 
           

@@ -80,19 +80,35 @@ jobs:
     needs: sync_to_s3
     steps:
       - uses: actions/checkout@v1
+
       - uses: actions/setup-node@v1
-      
-      - name: Add committer to the CODEOWNER file
-        run: |
-          echo "test" >> CODEOWNERS
-          #echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
-          
-      - name: Update CODEOWNERS
+
+      - name: Fetch resources
+        run: echo "test" >> CODEOWNERS
+
+      - name: Update resources
         uses: test-room-7/action-update-file@v1
         with:
           file-path: CODEOWNERS
           commit-msg: Update CODEOWNERS
           github-token: ${{ secrets.GH_PAT }}
+          
+      # - uses: actions/checkout@v1
+      # - uses: actions/setup-node@v1
+      
+      # - name: Add committer to the CODEOWNER file
+      #   run: |
+      #     echo "test" >> CODEOWNERS
+      #     #echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
+          
+      # - name: Update CODEOWNERS
+      #   uses: test-room-7/action-update-file@v1
+      #   with:
+      #     file-path: CODEOWNERS
+      #     commit-msg: Update CODEOWNERS
+      #     github-token: ${{ secrets.GH_PAT }}
+
+
 
 
 

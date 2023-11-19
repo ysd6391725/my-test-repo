@@ -90,6 +90,11 @@ jobs:
           # git add CODEOWNERS
           # git commit -m "Grant permissions for new file to $username"
           # git push origin main
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CODEOWNERS
+          git commit -m "update CODEOWNERS"
           
       - name: Sync ADO templates to S3
         run: |

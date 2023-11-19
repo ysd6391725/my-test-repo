@@ -34,7 +34,7 @@ jobs:
       - name: Display changed filenames by PR author
         run: |
           PR_AUTHOR=$(echo "${{ steps.author.outputs.author }}")
-          git log --merges --pretty=format:'%H' -n 1 | xargs -I {} git show --pretty="" --name-only {} | grep -E '^.*' | sed 's/\t.*//' | sort -u | xargs -I {} git log --author="$PR_AUTHOR" --pretty="" -n 1 -- {} | grep -E '^--- a/' | sed 's/--- a\///'
+          git log --merges --pretty=format:'%H'
 ############
       - name: Get Changed Files
         id: changed_files

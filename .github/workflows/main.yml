@@ -34,6 +34,17 @@ jobs:
       - name: Display last commit(s)
         run: git log -n 5 --pretty=oneline
 
+      - name: Get last commit hash
+        id: last_commit
+        run: |
+          LAST_COMMIT=$(git log -n 5 --pretty=oneline | grep "Merge pull request #57" | awk '{print $1}')
+          echo "::set-output name=last_commit::$LAST_COMMIT"
+
+      - name: Display last commit details
+        run: |
+          LAST_COMMIT_HASH=${{ steps.last_commit.outputs.last_commit }}
+          git show $LAST_COMMIT_HASH
+
 
 
 ############

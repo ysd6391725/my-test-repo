@@ -25,9 +25,8 @@ jobs:
 
       - name: Get pull request details
         run: |    
-          PR_USER=${{ github.event.issue.user.login }}
-          echo "Pull Request created by: $PR_USER"
-          echo "Files changed in this pull request:"
+          echo "This PR is opened by ${{ github.event.pull_request.user.login }} ."
+          echo "This PR is opened by ${{ github.event.issue.user.login }} ."
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
 
       - name: Get Changed Files

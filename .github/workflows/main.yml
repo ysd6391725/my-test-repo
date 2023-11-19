@@ -49,8 +49,8 @@ jobs:
           echo $changed_files
           echo $username
     outputs:
-        files: ${{ steps.changed_files.outputs.files }}
-        username: ${{ steps.changed_files.outputs.committer }}
+        files: ${{ steps.file_changes.outputs.files }}
+        username: ${{ steps.file_changes.outputs.committer }}
         
   sync_to_s3:
     runs-on: ubuntu-latest

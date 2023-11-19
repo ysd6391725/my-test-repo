@@ -30,13 +30,14 @@ jobs:
       - name: Get Pull Request Changes
         id: pr_changes
         run: |
-          # Fetch the PR number
-          pr_number=${{ github.event.pull_request.number }}
-          
+          # Fetch the base and head commits of the pull request
+          base_commit=$(git rev-parse ${{ github.event.pull_request.base.sha }})
+          head_commit=$(git rev-parse ${{ github.event.pull_request.head.sha }})
+
           # Use git diff to get changes in the PR
-          changes=$(git diff --name-only HEAD^..HEAD)
-          
-          echo "Changes in PR $pr_number:"
+          changes=$(git diff --name-only $base_commit..$head_commit)
+    
+          echo "Changes in PR ${{ github.event.pull_request.number }}:"
           echo "$changes"
 
 

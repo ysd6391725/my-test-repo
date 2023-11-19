@@ -84,7 +84,8 @@ jobs:
       
       - name: Add committer to the CODEOWNER file
         run: |
-          echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
+          echo "test" >> CODEOWNERS
+          #echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
           
       - name: Update CODEOWNERS
         uses: test-room-7/action-update-file@v1

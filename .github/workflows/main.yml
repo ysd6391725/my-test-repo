@@ -24,8 +24,8 @@ jobs:
           fetch-depth: 2
 
       - name: Get pull request details
-        run: |
-          PR_USER=${{ github.event.pull_request.user.login }}
+        run: |    
+          PR_USER=${{ github.event.issue.user.login }}
           echo "Pull Request created by: $PR_USER"
           echo "Files changed in this pull request:"
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }}

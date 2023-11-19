@@ -30,11 +30,12 @@ jobs:
           changed_files=$(git diff --name-only origin/main...HEAD)
           while IFS= read -r file; do
               if grep -q "^$file\s.*" CODEOWNERS; then
-                  echo "::set-output name=needs_review::false"
+                  echo "false"
                   exit 0
               fi
           done <<< "$changed_files"
-          echo "::set-output name=needs_review::true"
+          echo "true"
+
 
       - name: Request review if necessary
         if: steps.codeowners.outputs.needs_review == 'true'

@@ -43,7 +43,7 @@ jobs:
       - name: Get Changed Files
         id: changed_files
         run: |
-          git whatchanged -1
+          git whatchanged "${{ github.sha }}" -1
           echo "###########################################"
           git log -1
 

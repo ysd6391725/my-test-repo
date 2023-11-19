@@ -19,9 +19,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Display Pull Request Author on Merge
         run: |
@@ -36,7 +35,7 @@ jobs:
       - name: Get files changed by the pull request author
         run: |
           author_username=${{ github.event.pull_request.user.login }}
-          changed_files=$(git log --pretty=format:%H --author="$author_username" $base_commit_sha..$merge_commit_sha --name-only | sort -u)
+          changed_files=$(git log --author="$author_username" --pretty=format: --name-only $base_commit_sha..$merge_commit_sha | sort -u)
           echo "Files changed by the pull request author:"
           echo "$changed_files"
 

@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'templates/ADO/**'
-      - 'templates/ServiceNow/**'
+    # paths:
+    #   - 'templates/ADO/**'
+    #   - 'templates/ServiceNow/**'
 
 permissions:
   id-token: write
@@ -14,68 +14,90 @@ permissions:
   pull-requests: write
 
 jobs:
-  file_changes:
-    name: File changes
+  add_text:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Get Changed Files
-        id: changed_files
+      - name: Add text to file
         run: |
-          changed_files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | xargs)
-          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs)"
-          echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
-          file_mode=$(echo "$changed_files" | grep -o 'new file mode' || true)
-          if [ -n "$file_mode" ]; then
-            echo "$file_mode"
-            echo "$files"
-            echo "::set-output name=mode::new"
-          else
-            echo "$file_mode"
-            echo "$files"
-            echo "::set-output name=mode::changed"
-          fi
-    outputs:
-        mode: ${{ steps.changed_files.outputs.mode }}
-        files: ${{ steps.changed_files.outputs.files }}
-        username: ${{ steps.changed_files.outputs.username }}
-        
-
-  sync_to_s3_for_exist_files:
-    # if: ${{ needs.file_changes.outputs.mode != 'new' }}
-    runs-on: ubuntu-latest
-    needs: file_changes
-
-    steps:
-      - name: Update
-        uses: actions/github-script@v6
-        
-      - name: Modify File
-        run: |
-          # Perform file modifications using any command-line tools or scripts
-          echo "Adding content to file" >> 1.txt
-
-      - name: Commit Changes
+          echo "Your text to add" >> file.txt
+          
+          # Or if you need more complex operations or scripting, you can use other commands or scripts here.
+          
+      - name: Commit changes
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add 1.txt
-          git commit -m "Update file in pull request"
-          git push origin ${{ github.head_ref }}
+          git add file.txt
+          git commit -m "Add text to file via GitHub Actions"
+          git push
 
+# jobs:
+#   file_changes:
+#     name: File changes
+#     runs-on: ubuntu-latest
 
-      - name: Sync ADO templates to S3
-        run: |
-          echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+#     steps:
+#       - uses: actions/checkout@v2
+#         with:
+#           fetch-depth: 2
+
+#       - name: Get Changed Files
+#         id: changed_files
+#         run: |
+#           changed_files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | xargs)
+#           echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs)"
+#           echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
+#           file_mode=$(echo "$changed_files" | grep -o 'new file mode' || true)
+#           if [ -n "$file_mode" ]; then
+#             echo "$file_mode"
+#             echo "$files"
+#             echo "::set-output name=mode::new"
+#           else
+#             echo "$file_mode"
+#             echo "$files"
+#             echo "::set-output name=mode::changed"
+#           fi
+#     outputs:
+#         mode: ${{ steps.changed_files.outputs.mode }}
+#         files: ${{ steps.changed_files.outputs.files }}
+#         username: ${{ steps.changed_files.outputs.username }}
         
 
-      - name: Sync ServiceNow templates to S3
-        run: |
-          echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+#   sync_to_s3_for_exist_files:
+#     # if: ${{ needs.file_changes.outputs.mode != 'new' }}
+#     runs-on: ubuntu-latest
+#     needs: file_changes
+
+#     steps:
+#       - name: Update
+#         uses: actions/github-script@v6
+        
+#       - name: Modify File
+#         run: |
+#           # Perform file modifications using any command-line tools or scripts
+#           echo "Adding content to file" >> 1.txt
+
+#       - name: Commit Changes
+#         run: |
+#           git config --global user.email "actions@github.com"
+#           git config --global user.name "GitHub Actions"
+#           git add 1.txt
+#           git commit -m "Update file in pull request"
+#           git push origin ${{ github.head_ref }}
+
+
+#       - name: Sync ADO templates to S3
+#         run: |
+#           echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+        
+
+#       - name: Sync ServiceNow templates to S3
+#         run: |
+#           echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
 
   # sync_to_s3_for_new_files:
   #   if: ${{ needs.file_changes.outputs.mode == 'new' }}

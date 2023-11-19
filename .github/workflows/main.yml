@@ -61,6 +61,7 @@ jobs:
         uses: actions/checkout@v2
   
       - name: Check CODEOWNERS file
+        id: codeowners_file
         run: |
           echo ${{ needs.file_changes.outputs.files }}
           echo ${{ needs.file_changes.outputs.username }}
@@ -81,7 +82,7 @@ jobs:
         run: echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
         
     outputs:
-      committer: ${{ steps.sync_to_s3.outputs.mode }}
+      committer: ${{ steps.codeowners_file.outputs.mode }}
 
   add_to_codeowners:
     if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}

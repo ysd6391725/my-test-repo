@@ -32,20 +32,11 @@ jobs:
 
       - name: Get files changed by the pull request author
         run: |
-          author_username=${{ github.event.pull_request.user.login }}
-          changed_commits=$(git log --author="$author_username" --pretty=format:%H $merge_commit_sha | sort -u)
-          changed_files=$(git diff --name-only $(echo "$changed_commits" | head -n 1)^..$merge_commit_sha | sort -u)
+          changed_files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r $merge_commit_sha)
+          #changed_files=$(git diff --name-only $(echo "$changed_commits" | head -n 1)^..$merge_commit_sha | sort -u)
           echo "Files changed by the pull request author:"
           echo "$changed_files"
 ############
-      - name: Get pull request details
-        run: |    
-          echo "This PR is opened by ${{ github.event.pull_request.user.login }} ."
-          git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
-          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
-          echo "Changed files in the pull request:"
-          echo "$changed_files"
-          
       - name: Get Changed Files
         id: changed_files
         run: |

@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   code-review:
+    if: github.event.review.state == 'approved'
     runs-on: ubuntu-latest
 
     steps:

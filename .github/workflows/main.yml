@@ -13,100 +13,104 @@ permissions:
   pull-requests: write
 
 jobs:
-  file_changes:
-    if: github.event.pull_request.merged == true
-    name: File changes
-    runs-on: ubuntu-latest
+  resources:
+        name: Update resources
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
 
-      # - name: Display Pull Request Author on Merge
-      #   run: |
-      #     author_username=${{ github.event.pull_request.user.login }}
-      #     echo "The author of the pull request at merge was: $author_username"
-      #     git log --oneline --name-status -m -- templates/
-      #     echo "3333333333333333"
-      #     git log --oneline --name-status -m -- templates/ | awk '/^A/ {print $2}'
+            - name: Fetch resources
+              run: echo "test" >> 1.txt
 
-      - name: Get Changed Files
-        id: changed_files
-        run: |
-          changed_files=$(git log --oneline --name-status -m -- templates/ | awk '/^A/ {print $2}')
-          username=${{ github.event.pull_request.user.login }}
-          echo "::set-output name=files::$changed_files"
-          echo "::set-output name=committer::$username"
-          echo $changed_files
-          echo $username
-    outputs:
-        files: ${{ steps.changed_files.outputs.files }}
-        username: ${{ steps.changed_files.outputs.committer }}
+            - name: Update resources
+              uses: test-room-7/action-update-file@v1
+              with:
+                  file-path: 1.txt
+                  commit-msg: Update resources
+                  github-token: ${{ secrets.GH_PAT }}
+                  
+  # file_changes:
+  #   if: github.event.pull_request.merged == true
+  #   name: File changes
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+
+  #     # - name: Display Pull Request Author on Merge
+  #     #   run: |
+  #     #     author_username=${{ github.event.pull_request.user.login }}
+  #     #     echo "The author of the pull request at merge was: $author_username"
+  #     #     git log --oneline --name-status -m -- templates/
+  #     #     echo "3333333333333333"
+  #     #     git log --oneline --name-status -m -- templates/ | awk '/^A/ {print $2}'
+
+  #     - name: Get Changed Files
+  #       id: changed_files
+  #       run: |
+  #         changed_files=$(git log --oneline --name-status -m -- templates/ | awk '/^A/ {print $2}')
+  #         username=${{ github.event.pull_request.user.login }}
+  #         echo "::set-output name=files::$changed_files"
+  #         echo "::set-output name=committer::$username"
+  #         echo $changed_files
+  #         echo $username
+  #   outputs:
+  #       files: ${{ steps.changed_files.outputs.files }}
+  #       username: ${{ steps.changed_files.outputs.committer }}
         
-  sync_to_s3:
-    runs-on: ubuntu-latest
-    needs: file_changes
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+  # sync_to_s3:
+  #   runs-on: ubuntu-latest
+  #   needs: file_changes
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
   
-      - name: Check CODEOWNERS file
-        id: codeowners_file
-        run: |
-          echo ${{ needs.file_changes.outputs.files }}
-          echo ${{ needs.file_changes.outputs.username }}
-          while IFS= read -r line; do
-            if [[ $line == *"${{ needs.file_changes.outputs.files }}"* && $line == *"@${{ needs.file_changes.outputs.username }}"* ]]; then
-              echo "Exist"
-              echo "::set-output name=mode::no"
-              exit 0
-            fi
-          done < CODEOWNERS
-          echo "Not exists"
-          echo "::set-output name=mode::add"
+  #     - name: Check CODEOWNERS file
+  #       id: codeowners_file
+  #       run: |
+  #         echo ${{ needs.file_changes.outputs.files }}
+  #         echo ${{ needs.file_changes.outputs.username }}
+  #         while IFS= read -r line; do
+  #           if [[ $line == *"${{ needs.file_changes.outputs.files }}"* && $line == *"@${{ needs.file_changes.outputs.username }}"* ]]; then
+  #             echo "Exist"
+  #             echo "::set-output name=mode::no"
+  #             exit 0
+  #           fi
+  #         done < CODEOWNERS
+  #         echo "Not exists"
+  #         echo "::set-output name=mode::add"
 
-      - name: Sync ADO templates to S3
-        run: echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+  #     - name: Sync ADO templates to S3
+  #       run: echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
         
-      - name: Sync ServiceNow templates to S3
-        run: echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+  #     - name: Sync ServiceNow templates to S3
+  #       run: echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
         
-    outputs:
-      mode: ${{ steps.codeowners_file.outputs.mode }}
+  #   outputs:
+  #     mode: ${{ steps.codeowners_file.outputs.mode }}
 
-  add_to_codeowners:
-    if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}
-    runs-on: ubuntu-latest
-    needs: sync_to_s3
-    steps:
-      - uses: actions/checkout@v1
-
-      - uses: actions/setup-node@v1
-
-      - name: Fetch resources
-        run: echo "test" >> CODEOWNERS
-
-      - name: Update resources
-        uses: test-room-7/action-update-file@v1
-        with:
-          file-path: CODEOWNERS
-          commit-msg: Update CODEOWNERS
-          github-token: ${{ secrets.GH_PAT }}
-          
-      # - uses: actions/checkout@v1
-      # - uses: actions/setup-node@v1
+  # add_to_codeowners:
+  #   if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}
+  #   runs-on: ubuntu-latest
+  #   needs: sync_to_s3
+  #   steps:        
+  #     - uses: actions/checkout@v1
+  #     - uses: actions/setup-node@v1
       
-      # - name: Add committer to the CODEOWNER file
-      #   run: |
-      #     echo "test" >> CODEOWNERS
-      #     #echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
+  #     - name: Add committer to the CODEOWNER file
+  #       run: |
+  #         echo "test" >> CODEOWNERS
+  #         #echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
           
-      # - name: Update CODEOWNERS
-      #   uses: test-room-7/action-update-file@v1
-      #   with:
-      #     file-path: CODEOWNERS
-      #     commit-msg: Update CODEOWNERS
-      #     github-token: ${{ secrets.GH_PAT }}
+  #     - name: Update CODEOWNERS
+  #       uses: test-room-7/action-update-file@v1
+  #       with:
+  #         file-path: CODEOWNERS
+  #         commit-msg: Update CODEOWNERS
+  #         github-token: ${{ secrets.GH_PAT }}
 
 
 

@@ -26,24 +26,19 @@ jobs:
         run: |
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
-          git log -1
 
-      - name: Fetch latest changes
-        run: git fetch --depth=1 origin main
-
-      - name: Display last commit(s)
-        run: git log -n 5 --pretty=oneline
-
-      - name: Get last commit hash
-        id: last_commit
+      - name: Get Pull Request Changes
+        id: pr_changes
         run: |
-          LAST_COMMIT=$(git log -n 5 --pretty=oneline | grep "Merge pull request #57" | awk '{print $1}')
-          echo "::set-output name=last_commit::$LAST_COMMIT"
+          # Fetch the PR number
+          pr_number=${{ github.event.pull_request.number }}
+          
+          # Use git diff to get changes in the PR
+          changes=$(git diff --name-only HEAD^..HEAD)
+          
+          echo "Changes in PR $pr_number:"
+          echo "$changes"
 
-      - name: Display last commit details
-        run: |
-          LAST_COMMIT_HASH=${{ steps.last_commit.outputs.last_commit }}
-          git show $LAST_COMMIT_HASH
 
 
 

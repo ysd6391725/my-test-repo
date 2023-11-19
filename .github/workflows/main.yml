@@ -43,7 +43,7 @@ jobs:
       - name: Get Changed Files
         id: changed_files
         run: |
-          git diff-tree --no-commit-id --name-status -r "${{ github.sha }}"
+          git diff-tree
           echo "###########################################"
           git log -1
 

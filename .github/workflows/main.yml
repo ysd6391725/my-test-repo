@@ -14,26 +14,24 @@ permissions:
 
 jobs:
   resources:
-        name: Update resources
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v1
+    name: Update resources
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-            - uses: actions/setup-node@v1
+      - name: Add text to file
+        run: echo "Your text here" >> 1.txt
 
-            - name: Fetch resources
-              run: echo "test" >> 1.txt
+      - name: Commit changes
+        run: |
+          git add 1.txt
+          git commit -m "Add text to file" --author="GitHub Actions <actions@github.com>" # Using generic author information
 
-            - name: Update resources
-              uses: test-room-7/action-update-file@v1
-              with:
-                  file-path: 1.txt
-                  commit-msg: Update resources
-                  github-token: ${{ secrets.GH_PAT }}
-                  allow-dot: false
-                  allow-removing: false
-                  committer-name: github-actions[bot]
-                  committer-email: github-actions[bot]@users.noreply.github.com
+      - name: Push changes
+        run: git push https://github.com/${{ github.repository }}.git HEAD:main
+        env:
+          TOKEN: ${{ secrets.GH_PAT }}
                   
   # file_changes:
   #   if: github.event.pull_request.merged == true

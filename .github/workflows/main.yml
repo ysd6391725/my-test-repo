@@ -43,7 +43,7 @@ jobs:
       - name: Get Changed Files
         id: changed_files
         run: |
-          git diff-tree --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs
+          git diff-tree -r "${{ github.sha }}" -- templates/ | xargs
           echo "###########################################"
           git log -1
 

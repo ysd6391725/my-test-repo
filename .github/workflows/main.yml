@@ -56,15 +56,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
   
-      - name: Check users.txt file
+      - name: Check CODEOWNERS file
         run: |
           while IFS= read -r line; do
-            if [[ $line == *"/templates/ADO/test.j2"* && $line == *"@ysd6391725"* ]]; then
+            if [[ $line == *"${{ steps.changed_files.outputs.files }}"* && $line == *"@${{ steps.changed_files.outputs.username }}"* ]]; then
               echo "Exist"
               exit 0
             fi
           done < CODEOWNERS
           echo "Not exists"
+          
       # - name: Sync ADO templates to S3
       #   run: |
       #     echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"

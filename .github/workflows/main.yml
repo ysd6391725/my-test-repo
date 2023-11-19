@@ -1,9 +1,9 @@
 name: Check CODEOWNERS for Committer
 
 on:
-  pull_request:
+  push:
     branches:
-      - main
+      - dev
     paths:
       - 'templates/ADO/**'
       - 'templates/ServiceNow/**'

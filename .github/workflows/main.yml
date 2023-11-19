@@ -3,7 +3,7 @@ name: Check CODEOWNERS for Committer
 on:
   push:
     branches:
-      - dev
+      - main
     paths:
       - 'templates/ADO/**'
       - 'templates/ServiceNow/**'

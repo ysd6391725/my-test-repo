@@ -29,6 +29,7 @@ jobs:
         id: check_codeowners
         run: |
           committer_username="${{ steps.committer_username.outputs.username }}"
+          echo $committer_username
           owners=$(awk '/^\*.*@/ {print $2}' CODEOWNERS)
           if echo "$owners" | grep -qw "$committer_username"; then
             echo "Committer is in CODEOWNERS"

@@ -13,14 +13,23 @@ permissions:
   pull-requests: write
 
 jobs:
-  run:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: wow-actions/update-file@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          path: 1.txt
-          content: 'Updated by update-file action'
+    resources:
+        name: Update resources
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+
+            - uses: actions/setup-node@v1
+
+            - name: Fetch resources
+              run: echo "test" >> 1.txt
+
+            - name: Update resources
+              uses: test-room-7/action-update-file@v1
+              with:
+                  file-path: 1.txt
+                  commit-msg: Update resources
+                  github-token: ${{ secrets.GH_PAT }}
 
 
                   

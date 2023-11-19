@@ -27,21 +27,14 @@ jobs:
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
 
-      - name: Get base commit and merge commit
+      - name: Get PR author username
+        id: author
+        run: echo "::set-output name=author::$(jq -r '.pull_request.user.login' $GITHUB_EVENT_PATH)"
+      
+      - name: Display changes by PR author
         run: |
-          base_commit_sha=${{ github.event.pull_request.base.sha }}
-          merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Get branch point commit
-        run: |
-          branch_point_commit=$(git rev-list --ancestry-path $base_commit_sha..$merge_commit_sha | tail -1)
-
-      - name: Get files changed by the pull request author
-        run: |
-          author_username=${{ github.event.pull_request.user.login }}
-          changed_files=$(git log --author="$author_username" --pretty=format: --name-only $branch_point_commit..$merge_commit_sha | sort -u)
-          echo "Files changed by the pull request author:"
-          echo "$changed_files"
+          PR_AUTHOR=$(echo "${{ steps.author.outputs.author }}")
+          git log --pretty=format:'%H' -n 1 | xargs -I {} git show --name-only {} | grep "$PR_AUTHOR"
 ############
       - name: Get Changed Files
         id: changed_files

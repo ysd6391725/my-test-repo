@@ -25,7 +25,8 @@ jobs:
 
       - name: Get pull request details
         run: |
-          echo "Pull Request created by: ${{ github.event.pull_request.user.login }}"
+          PR_USER=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }} | jq -r '.user.login')
+          echo "Pull Request created by: $PR_USER"
           echo "Files changed in this pull request:"
           git diff --name-only ${{ github.event.before }} ${{ github.event.after }}
 

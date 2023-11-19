@@ -27,6 +27,7 @@ jobs:
       - name: Check code ownership
         id: codeowners
         run: |
+          git diff --name-only origin/main...HEAD
           changed_files=$(git diff --name-only origin/main...HEAD)
           while IFS= read -r file; do
               if grep -q "^$file\s.*" CODEOWNERS; then

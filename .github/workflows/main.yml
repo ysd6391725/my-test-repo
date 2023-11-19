@@ -6,29 +6,137 @@ on:
       - main
 
 jobs:
-  check-codeowners:
+  file_changes:
+    name: File changes
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
 
-      - name: Get Committer Username
-        id: committer_username
+      - name: Get Changed Files
+        id: changed_files
         run: |
-          git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]'
-          echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
-          # Extracts the GitHub username associated with the latest commit
-
-      - name: Check if Committer is in CODEOWNERS
-        id: check_codeowners
-        run: |
-          committer_username="${{ steps.committer_username.outputs.username }}"
-          echo $committer_username
-          owners=$(awk '/^\*.*@/ {print $2}' CODEOWNERS)
-          if echo "$owners" | grep -qw "$committer_username"; then
-            echo "Committer is in CODEOWNERS"
+          changed_files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | xargs)
+          file_mode=$(echo "$changed_files" | grep -o 'new file mode' || true)
+          echo $changed_files
+          if [ -n "$file_mode" ]; then
+            echo "$file_mode"
+            echo "::set-output name=mode::new"
           else
-            echo "Committer is not in CODEOWNERS"
+            echo "$file_mode"
+            echo "::set-output name=mode::changed"
           fi
+    outputs:
+        mode: ${{ steps.changed_files.outputs.mode }}
+        changed_file: ${{ steps.changed_files.outputs.mode }}
+
+#   sync_to_s3_for_exist_files:
+#     if: ${{ needs.file_changes.outputs.mode != 'new' }}
+#     runs-on: ubuntu-latest
+#     needs: file_changes
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
+
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+
+#       - name: Sync ADO templates to S3
+#         run: |
+#           echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+        
+
+#       - name: Sync ServiceNow templates to S3
+#         run: |
+#           echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+
+#   sync_to_s3_for_new_files:
+#     if: ${{ needs.file_changes.outputs.mode == 'new' }}
+#     runs-on: ubuntu-latest
+#     needs: file_changes
+      
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
+
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+          
+#       - name: Update CODEOWNERS if New File Created
+#         run: |
+#           committer_username="${{ steps.committer_username.outputs.username }}"
+#           echo "*.$YOUR_FILE_EXTENSION   @$committer_username" >> CODEOWNERS
+#           git config --global user.email "actions@github.com"
+#           git config --global user.name "GitHub Actions"
+#           git add CODEOWNERS
+#           git commit -m "Grant permissions for new file to $committer_username"
+#           git push origin main
+          
+#       - name: Sync ADO templates to S3
+#         run: |
+#           echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+          
+#       - name: Sync ServiceNow templates to S3
+#         run: |
+#           echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+# ################
+#   check-codeowners:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Get Committer Username
+#         id: committer_username
+#         run: |
+#           git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]'
+#           echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
+#           # Extracts the GitHub username associated with the latest commit
+
+#       - name: Check if Committer is in CODEOWNERS
+#         id: check_codeowners
+#         run: |
+#           committer_username="${{ steps.committer_username.outputs.username }}"
+#           echo $committer_username
+#           owners=$(awk '/^\*.*@/ {print $2}' CODEOWNERS)
+#           if echo "$owners" | grep -qw "$committer_username"; then
+#             echo "Committer is in CODEOWNERS"
+#             echo "::set-output name=mode::true"
+#           else
+#             echo "Committer is not in CODEOWNERS"
+#             echo "::set-output name=mode::false"
+#           fi
+#   job2:
+#     if: ${{ needs.file_changes.outputs.mode != 'true' }}
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Get Committer Username
+#         id: committer_username
+#         run: |
+#           git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]'
+#           echo "::set-output name=username::$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')"
+#           # Extracts the GitHub username associated with the latest commit
+
+#       - name: Check if Committer is in CODEOWNERS
+#         id: check_codeowners
+#         run: |
+#           committer_username="${{ steps.committer_username.outputs.username }}"
+#           echo $committer_username
+#           owners=$(awk '/^\*.*@/ {print $2}' CODEOWNERS)
+#           if echo "$owners" | grep -qw "$committer_username"; then
+#             echo "Committer is in CODEOWNERS"
+#           else
+#             echo "Committer is not in CODEOWNERS"
+#           fi
+  
 

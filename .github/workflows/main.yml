@@ -34,9 +34,7 @@ jobs:
           git commit -m "Add text to file" --author="GitHub Actions <actions@github.com>"
 
       - name: Push changes
-        run: git push
-        env:
-          TOKEN: ${{ secrets.GH_PAT }}
+        run: git push https://${{ secrets.GH_PAT }}@github.com/syakovenko81/my-test-repo.git
                   
   # file_changes:
   #   if: github.event.pull_request.merged == true

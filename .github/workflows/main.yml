@@ -28,9 +28,9 @@ jobs:
       - name: Check if Committer is in CODEOWNERS
         id: check_codeowners
         run: |
-          committer=$(cat $GITHUB_WORKSPACE/CODEOWNERS | grep -Eo '@\S+' | sed 's/@//')
           committer_username="${{ steps.committer_username.outputs.username }}"
-          if [[ "$committer" == *"$committer_username"* ]]; then
+          owners=$(awk '/^\*.*@/ {print $2}' CODEOWNERS)
+          if echo "$owners" | grep -qw "$committer_username"; then
             echo "Committer is in CODEOWNERS"
           else
             echo "Committer is not in CODEOWNERS"

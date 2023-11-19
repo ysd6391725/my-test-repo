@@ -23,13 +23,13 @@ jobs:
 
       - name: Add text to file
         run: |
-          echo "Your text to add" >> path/to/your/file.txt
+          echo "Your text to add" >> 1.txt
 
       - name: Commit changes
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add path/to/your/file.txt
+          git add 1.txt
           git commit -m "Add text to file via GitHub Actions"
 
       - name: Push changes using PAT

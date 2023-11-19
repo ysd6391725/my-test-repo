@@ -27,14 +27,19 @@ jobs:
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
 
-      - name: Get merge commit
-        run: merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}
+      - name: Get base commit and merge commit
+        run: |
+          base_commit_sha=${{ github.event.pull_request.base.sha }}
+          merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Get branch point commit
+        run: |
+          branch_point_commit=$(git merge-base $base_commit_sha $merge_commit_sha)
 
       - name: Get files changed by the pull request author
         run: |
-          merge_commit_sha=${{ github.event.pull_request.merge_commit_sha }}
-          changed_files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "$merge_commit_sha")
-          #changed_files=$(git diff --name-only $(echo "$changed_commits" | head -n 1)^..$merge_commit_sha | sort -u)
+          author_username=${{ github.event.pull_request.user.login }}
+          changed_files=$(git log --author="$author_username" --pretty=format: --name-only $branch_point_commit..$merge_commit_sha | sort -u)
           echo "Files changed by the pull request author:"
           echo "$changed_files"
 ############

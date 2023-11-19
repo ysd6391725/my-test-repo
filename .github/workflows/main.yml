@@ -26,19 +26,8 @@ jobs:
         run: |
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
-
-      - name: Get Pull Request Changes
-        id: pr_changes
-        run: |
-          # Fetch the base and head commits of the pull request
-          base_commit=$(git rev-parse ${{ github.event.pull_request.base.sha }})
-          head_commit=$(git rev-parse ${{ github.event.pull_request.head.sha }})
-
-          # Use git diff to get changes in the PR
-          changes=$(git diff --name-only $base_commit..$head_commit)
-    
-          echo "Changes in PR ${{ github.event.pull_request.number }}:"
-          echo "$changes"
+          changes=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.event.pull_request.merge_commit_sha }}" -- templates/ | xargs)
+          echo $changes
 
 
 

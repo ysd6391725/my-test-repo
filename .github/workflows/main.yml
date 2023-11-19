@@ -34,7 +34,7 @@ jobs:
 
       - name: Get branch point commit
         run: |
-          branch_point_commit=$(git merge-base $base_commit_sha $merge_commit_sha)
+          branch_point_commit=$(git rev-list --ancestry-path $base_commit_sha..$merge_commit_sha | tail -1)
 
       - name: Get files changed by the pull request author
         run: |

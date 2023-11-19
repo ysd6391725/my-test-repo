@@ -19,6 +19,8 @@ jobs:
         id: changed_files
         run: |
           changed_files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | xargs)
+          files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | grep -E '^\+\+\+ b/' | cut -d' ' -f3)
+          echo $files
           file_mode=$(echo "$changed_files" | grep -o 'new file mode' || true)
           echo $changed_files
           if [ -n "$file_mode" ]; then

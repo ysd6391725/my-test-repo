@@ -19,73 +19,73 @@ jobs:
         id: changed_files
         run: |
           changed_files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | xargs)
-          files=$(git diff --diff-filter=ACMRT "${{ github.sha }}"^ -- templates/ | grep -E '^\+\+\+ b/' | cut -d' ' -f3)
-          echo $files
+          files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs)
           file_mode=$(echo "$changed_files" | grep -o 'new file mode' || true)
-          echo $changed_files
           if [ -n "$file_mode" ]; then
             echo "$file_mode"
+            echo "$files"
             echo "::set-output name=mode::new"
           else
             echo "$file_mode"
+            echo "$files"
             echo "::set-output name=mode::changed"
           fi
     outputs:
         mode: ${{ steps.changed_files.outputs.mode }}
         changed_file: ${{ steps.changed_files.outputs.mode }}
 
-#   sync_to_s3_for_exist_files:
-#     if: ${{ needs.file_changes.outputs.mode != 'new' }}
-#     runs-on: ubuntu-latest
-#     needs: file_changes
+  # sync_to_s3_for_exist_files:
+  #   if: ${{ needs.file_changes.outputs.mode != 'new' }}
+  #   runs-on: ubuntu-latest
+  #   needs: file_changes
 
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-#       - uses: actions/setup-node@v3
-#         with:
-#           node-version: '18'
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
 
-#       - name: Sync ADO templates to S3
-#         run: |
-#           echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+  #     - name: Sync ADO templates to S3
+  #       run: |
+  #         echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
         
 
-#       - name: Sync ServiceNow templates to S3
-#         run: |
-#           echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+  #     - name: Sync ServiceNow templates to S3
+  #       run: |
+  #         echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
 
-#   sync_to_s3_for_new_files:
-#     if: ${{ needs.file_changes.outputs.mode == 'new' }}
-#     runs-on: ubuntu-latest
-#     needs: file_changes
+  # sync_to_s3_for_new_files:
+  #   if: ${{ needs.file_changes.outputs.mode == 'new' }}
+  #   runs-on: ubuntu-latest
+  #   needs: file_changes
       
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-#       - uses: actions/setup-node@v3
-#         with:
-#           node-version: '18'
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '18'
           
-#       - name: Update CODEOWNERS if New File Created
-#         run: |
-#           committer_username="${{ steps.committer_username.outputs.username }}"
-#           echo "*.$YOUR_FILE_EXTENSION   @$committer_username" >> CODEOWNERS
-#           git config --global user.email "actions@github.com"
-#           git config --global user.name "GitHub Actions"
-#           git add CODEOWNERS
-#           git commit -m "Grant permissions for new file to $committer_username"
-#           git push origin main
+  #     - name: Update CODEOWNERS if New File Created
+  #       run: |
+  #         committer_username="${{ steps.committer_username.outputs.username }}"
+  #         echo "/templates/   @$committer_username" >> CODEOWNERS
+  #         git config --global user.email "actions@github.com"
+  #         git config --global user.name "GitHub Actions"
+  #         git add CODEOWNERS
+  #         git commit -m "Grant permissions for new file to $committer_username"
+  #         git push origin main
           
-#       - name: Sync ADO templates to S3
-#         run: |
-#           echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
+  #     - name: Sync ADO templates to S3
+  #       run: |
+  #         echo "aws s3 sync templates/ADO/ s3://tf-s3-ado-snow-sync-staging/ADO/"
           
-#       - name: Sync ServiceNow templates to S3
-#         run: |
-#           echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
+  #     - name: Sync ServiceNow templates to S3
+  #       run: |
+  #         echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
 # ################
 #   check-codeowners:
 #     runs-on: ubuntu-latest

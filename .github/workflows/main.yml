@@ -43,7 +43,7 @@ jobs:
       - name: Get Changed Files
         id: changed_files
         run: |
-          git diff-tree --diff-filter=ACMRT -r "${{ github.sha }}
+          git diff-tree --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs
           git log -1 --pretty=format:'%ae'
           changed_files=$(git diff-tree --no-commit-id --name-only --diff-filter=ACMRT -r "${{ github.sha }}" -- templates/ | xargs)
           username=$(git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]')

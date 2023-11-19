@@ -72,7 +72,7 @@ jobs:
         run: echo "aws s3 sync templates/ServiceNow/ s3://tf-s3-ado-snow-sync-staging/ServiceNow/"
         
     outputs:
-      committer: ${{ steps.codeowners_file.outputs.mode }}
+      mode: ${{ steps.codeowners_file.outputs.mode }}
 
   add_to_codeowners:
     #if: ${{ needs.sync_to_s3.outputs.mode == 'add' }}

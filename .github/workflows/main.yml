@@ -11,28 +11,41 @@ permissions:
   pull-requests: write
 
 jobs:
-  sync_to_s3_for_exist_files:
+  code-review:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Check CODEOWNERS
-        id: check_codeowners
+      - name: Get CODEOWNERS
         run: |
-          USERNAME=$(echo "${{ github.actor }}" | sed 's/[^a-zA-Z0-9]//g') # Sanitize username for API call
-          CODEOWNERS_CONTENT=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/contents/CODEOWNERS")
-          if echo "${CODEOWNERS_CONTENT}" | grep -q "\\b${USERNAME}\\b"; then
-            echo "User '${USERNAME}' is in CODEOWNERS"
-            echo "::set-output name=codeowner::true"
-          else
-            echo "User '${USERNAME}' is not in CODEOWNERS"
-            echo "::set-output name=codeowner::false"
-          fi
+          git fetch origin main
+          git checkout origin/main -- CODEOWNERS
+          # Adjust the path if your CODEOWNERS file is located in a different directory
 
+      - name: Check code ownership
+        id: codeowners
+        run: |
+          changed_files=$(git diff --name-only origin/main...HEAD)
+          while IFS= read -r file; do
+              if grep -q "^$file\s.*" CODEOWNERS; then
+                  echo "::set-output name=needs_review::false"
+                  exit 0
+              fi
+          done <<< "$changed_files"
+          echo "::set-output name=needs_review::true"
+
+      - name: Request review if necessary
+        if: steps.codeowners.outputs.needs_review == 'true'
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.pulls.createReviewRequest({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers: ['reviewer1', 'reviewer2'] // Add your reviewers here
+            });
+            console.log(response);

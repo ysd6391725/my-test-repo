@@ -30,6 +30,10 @@ jobs:
                   file-path: 1.txt
                   commit-msg: Update resources
                   github-token: ${{ secrets.GH_PAT }}
+                  allow-dot: false
+                  allow-removing: false
+                  committer-name: github-actions[bot]
+                  committer-email: github-actions[bot]@users.noreply.github.com
                   
   # file_changes:
   #   if: github.event.pull_request.merged == true

@@ -16,7 +16,7 @@ jobs:
       - name: Get Committer Username
         id: committer_username
         run: |
-          git log -1 --pretty=format:'%ae' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]'
+          git log -1 --pretty=format:'%ae' | awk -F "+" '{print $2}' | awk -F "@" '{print $1}' | tr '[:upper:]' '[:lower:]'
           # Extracts the GitHub username associated with the latest commit
 
       - name: Check if Committer is in CODEOWNERS

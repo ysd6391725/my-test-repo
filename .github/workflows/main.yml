@@ -84,7 +84,7 @@ jobs:
       
       - name: Add committer to the CODEOWNER file
         run: |
-          echo  ${{ needs.sync_to_s3.outputs.mode }
+          echo  ${{ needs.sync_to_s3.outputs.mode }}
       #     echo "${{ needs.file_changes.outputs.files }}       ${{ needs.file_changes.outputs.username }}" >> CODEOWNERS
           
       # - name: Update CODEOWNERS

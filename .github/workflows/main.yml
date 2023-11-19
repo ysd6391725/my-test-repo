@@ -51,12 +51,22 @@ jobs:
     needs: file_changes
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Update
+        uses: actions/github-script@v6
+        
+      - name: Modify File
+        run: |
+          # Perform file modifications using any command-line tools or scripts
+          echo "Adding content to file" >> 1.txt
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+      - name: Commit Changes
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add 1.txt
+          git commit -m "Update file in pull request"
+          git push origin ${{ github.head_ref }}
+
 
       - name: Sync ADO templates to S3
         run: |

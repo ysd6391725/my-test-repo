@@ -26,15 +26,9 @@ jobs:
         run: |
           author_username=${{ github.event.pull_request.user.login }}
           echo "The author of the pull request at merge was: $author_username"
+          git log -1
 
-      - name: Get PR author username
-        id: author
-        run: echo "::set-output name=author::$(jq -r '.pull_request.user.login' $GITHUB_EVENT_PATH)"
-      
-      - name: Display changed filenames by PR author
-        run: |
-          PR_AUTHOR=$(echo "${{ steps.author.outputs.author }}")
-          git log --merges --pretty=format:'%H'
+
 ############
       - name: Get Changed Files
         id: changed_files
